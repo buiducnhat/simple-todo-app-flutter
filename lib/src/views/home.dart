@@ -24,12 +24,20 @@ class _HomeState extends State<Home> {
       body: ListView(
         children: _tasks.isNotEmpty
             ? _tasks
-                .map((e) => TaskWidget(
-                    task: e, toggleCompleteTask: this._toggleCompleteTask))
+                .map((task) => TaskWidget(
+                      key: Key(task.id.toString()),
+                      task: task,
+                      toggleCompleteTask: this._toggleCompleteTask,
+                      removeTask: this._removeTask,
+                    ))
                 .toList()
             : <Widget>[],
       ),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: Theme.of(context).primaryColor,
+        foregroundColor: Colors.white,
+        focusColor: Theme.of(context).accentColor,
+        hoverColor: Theme.of(context).accentColor,
         onPressed: _onPressedAddButton,
         child: Icon(CupertinoIcons.add),
       ),
@@ -63,13 +71,19 @@ class _HomeState extends State<Home> {
 
   void _toggleCompleteTask(int taskId) {
     setState(() {
-      this._tasks = this._tasks.map((e) {
-        if (e.id != taskId) {
-          return e;
+      this._tasks = this._tasks.map((task) {
+        if (task.id != taskId) {
+          return task;
         } else {
-          return new Task(e.id, e.title, e.content, !e.isCompleted);
+          return new Task(task.id, task.title, task.content, !task.isCompleted);
         }
       }).toList();
+    });
+  }
+
+  void _removeTask(int taskId) {
+    setState(() {
+      this._tasks = this._tasks.where((task) => task.id != taskId).toList();
     });
   }
 }
