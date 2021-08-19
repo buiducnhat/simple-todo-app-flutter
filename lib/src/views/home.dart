@@ -13,7 +13,7 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  final List<Task> _todoItems = tasksMock;
+  List<Task> _tasks = tasksMock;
 
   @override
   Widget build(BuildContext context) {
@@ -22,8 +22,11 @@ class _HomeState extends State<Home> {
         title: const Text('Todo App'),
       ),
       body: ListView(
-        children: _todoItems.isNotEmpty
-            ? _todoItems.map((e) => TaskWidget(task: e)).toList()
+        children: _tasks.isNotEmpty
+            ? _tasks
+                .map((e) => TaskWidget(
+                    task: e, toggleCompleteTask: this._toggleCompleteTask))
+                .toList()
             : <Widget>[],
       ),
       floatingActionButton: FloatingActionButton(
@@ -37,13 +40,36 @@ class _HomeState extends State<Home> {
     showDialog(
         context: context,
         builder: (BuildContext context) {
-          return DialogAddWidget(addTodoItem: _addTodoItem);
+          return DialogAddWidget(
+              lastTaskId: _getLastTaskId(), addTask: _addTask);
         });
   }
 
-  void _addTodoItem(Task task) {
+  int _getLastTaskId() {
+    if (this._tasks.isEmpty) {
+      return 0;
+    }
+    return this
+        ._tasks
+        .reduce((curr, next) => curr.id > next.id ? curr : next)
+        .id;
+  }
+
+  void _addTask(Task task) {
     setState(() {
-      this._todoItems.add(task);
+      this._tasks.add(task);
+    });
+  }
+
+  void _toggleCompleteTask(int taskId) {
+    setState(() {
+      this._tasks = this._tasks.map((e) {
+        if (e.id != taskId) {
+          return e;
+        } else {
+          return new Task(e.id, e.title, e.content, !e.isCompleted);
+        }
+      }).toList();
     });
   }
 }

@@ -2,22 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:todo_app/src/models/task.dart';
 
 class TaskWidget extends StatefulWidget {
-  const TaskWidget({Key? key, required this.task}) : super(key: key);
+  const TaskWidget(
+      {Key? key, required this.task, required this.toggleCompleteTask})
+      : super(key: key);
   final Task task;
+  final Function toggleCompleteTask;
 
   @override
   _TaskWidgetState createState() => _TaskWidgetState();
 }
 
 class _TaskWidgetState extends State<TaskWidget> {
-  bool _showContent = false;
+  bool _isExpand = false;
 
   @override
   Widget build(BuildContext context) {
     return Card(
       child: Column(children: [
         ListTile(
-            onTap: _toggleShowContent,
+            onTap: _toggleExpand,
             title: Text(
               widget.task.title,
               style: TextStyle(
@@ -34,16 +37,19 @@ class _TaskWidgetState extends State<TaskWidget> {
                       print('a');
                     },
                     icon: Icon(Icons.edit_outlined)),
-                IconButton(
-                  color: Colors.red,
-                  onPressed: () {
-                    print('b');
-                  },
-                  icon: Icon(Icons.delete_outline_rounded),
-                )
+                // IconButton(
+                //   color: Colors.red,
+                //   onPressed: () {
+                //     print('b');
+                //   },
+                //   icon: Icon(Icons.delete_outline_rounded),
+                // )
+                Checkbox(
+                    value: widget.task.isCompleted,
+                    onChanged: _onChangedToggleComplete)
               ],
             )),
-        _showContent
+        _isExpand
             ? Container(
                 padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
                 child: Text(widget.task.content),
@@ -53,9 +59,13 @@ class _TaskWidgetState extends State<TaskWidget> {
     );
   }
 
-  void _toggleShowContent() {
+  void _toggleExpand() {
     setState(() {
-      _showContent = !_showContent;
+      _isExpand = !_isExpand;
     });
+  }
+
+  void _onChangedToggleComplete(bool? value) {
+    widget.toggleCompleteTask(widget.task.id);
   }
 }
