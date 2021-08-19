@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:todo_app/src/models/todo.dart';
-import 'package:todo_app/src/widgets/todo_item_widget.dart';
-import 'package:todo_app/src/__mocks__/todo_items_mock.dart';
+import 'package:todo_app/src/models/task.dart';
+import 'package:todo_app/src/widgets/dialog_add_task_widget.dart';
+import 'package:todo_app/src/widgets/task_widget.dart';
+import 'package:todo_app/src/__mocks__/tasks_mock.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -12,7 +13,7 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  final List<TodoItem> _todoItems = todoItemsMock;
+  final List<Task> _todoItems = tasksMock;
 
   @override
   Widget build(BuildContext context) {
@@ -22,19 +23,27 @@ class _HomeState extends State<Home> {
       ),
       body: ListView(
         children: _todoItems.isNotEmpty
-            ? _todoItems.map((e) => TodoItemWidget(todoItem: e)).toList()
+            ? _todoItems.map((e) => TaskWidget(task: e)).toList()
             : <Widget>[],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: null,
+        onPressed: _onPressedAddButton,
         child: Icon(CupertinoIcons.add),
       ),
     );
   }
 
-  void _addTodoItem(TodoItem todoItem) {
+  void _onPressedAddButton() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return DialogAddWidget(addTodoItem: _addTodoItem);
+        });
+  }
+
+  void _addTodoItem(Task task) {
     setState(() {
-      this._todoItems.add(todoItem);
+      this._todoItems.add(task);
     });
   }
 }
