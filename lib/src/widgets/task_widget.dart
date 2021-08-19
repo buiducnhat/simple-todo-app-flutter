@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:todo_app/src/models/todo.dart';
+import 'package:todo_app/src/models/task.dart';
 
-class TodoItemWidget extends StatefulWidget {
-  const TodoItemWidget({Key? key, required this.todoItem}) : super(key: key);
-  final TodoItem todoItem;
+class TaskWidget extends StatefulWidget {
+  const TaskWidget({Key? key, required this.task}) : super(key: key);
+  final Task task;
 
   @override
-  _TodoItemWidgetState createState() => _TodoItemWidgetState();
+  _TaskWidgetState createState() => _TaskWidgetState();
 }
 
-class _TodoItemWidgetState extends State<TodoItemWidget> {
+class _TaskWidgetState extends State<TaskWidget> {
   bool _showContent = false;
 
   @override
@@ -19,7 +19,7 @@ class _TodoItemWidgetState extends State<TodoItemWidget> {
         ListTile(
             onTap: _toggleShowContent,
             title: Text(
-              widget.todoItem.title,
+              widget.task.title,
               style: TextStyle(
                   color: Theme.of(context).primaryColor,
                   fontWeight: FontWeight.bold,
@@ -46,7 +46,7 @@ class _TodoItemWidgetState extends State<TodoItemWidget> {
         _showContent
             ? Container(
                 padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-                child: Text(widget.todoItem.content),
+                child: Text(widget.task.content),
               )
             : Container()
       ]),
