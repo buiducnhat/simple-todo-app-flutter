@@ -15,6 +15,7 @@ class DialogAddWidget extends StatefulWidget {
 }
 
 class _DialogAddWidgetState extends State<DialogAddWidget> {
+  final _formKey = GlobalKey<FormState>();
   String _title = '';
   String _content = '';
 
@@ -25,12 +26,14 @@ class _DialogAddWidgetState extends State<DialogAddWidget> {
       title: Text('Add new task'),
       content: Container(
         child: Form(
+          key: _formKey,
           child: Column(
             children: <Widget>[
               TextFormField(
                 decoration: InputDecoration(
                   labelText: 'Title',
                 ),
+                validator: _validator,
                 onChanged: (value) {
                   setState(() {
                     this._title = value;
@@ -43,6 +46,7 @@ class _DialogAddWidgetState extends State<DialogAddWidget> {
                 decoration: InputDecoration(
                   labelText: 'Content',
                 ),
+                validator: _validator,
                 onChanged: (value) {
                   setState(() {
                     this._content = value;
@@ -64,8 +68,17 @@ class _DialogAddWidgetState extends State<DialogAddWidget> {
   }
 
   void _onPressAddButton() {
-    widget.addTask(
-        new Task(widget.lastTaskId + 1, this._title, this._content, false));
-    Navigator.pop(context);
+    if (_formKey.currentState!.validate()) {
+      widget.addTask(
+          new Task(widget.lastTaskId + 1, this._title, this._content, false));
+      Navigator.pop(context);
+    }
+  }
+
+  String? _validator(value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter some text';
+    }
+    return null;
   }
 }

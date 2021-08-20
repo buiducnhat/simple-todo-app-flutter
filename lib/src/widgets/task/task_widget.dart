@@ -1,17 +1,24 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:todo_app/src/models/task.dart';
+import 'package:todo_app/src/widgets/task/dialog_edit_task_widget.dart';
 
 class TaskWidget extends StatefulWidget {
-  const TaskWidget(
-      {Key? key,
-      required this.task,
-      required this.toggleCompleteTask,
-      required this.removeTask})
-      : super(key: key);
+  const TaskWidget({
+    Key? key,
+    required this.index,
+    required this.task,
+    required this.toggleCompleteTask,
+    required this.removeTask,
+    required this.undoRemoveTask,
+    required this.editTask,
+  }) : super(key: key);
+  final int index;
   final Task task;
   final Function toggleCompleteTask;
   final Function removeTask;
+  final Function undoRemoveTask;
+  final Function editTask;
 
   @override
   _TaskWidgetState createState() => _TaskWidgetState();
@@ -34,14 +41,8 @@ class _TaskWidgetState extends State<TaskWidget> {
     return Dismissible(
         key: Key(widget.task.id.toString()),
         direction: DismissDirection.endToStart,
-        onDismissed: (DismissDirection? direction) {
-          print('helo');
-          widget.removeTask(widget.task.id);
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: Text("Task ${widget.task.title} was removed!")));
-        },
-        confirmDismiss: (DismissDirection? direction) =>
-            _onSwipeTask(direction),
+        onDismissed: _onDismissTask,
+        confirmDismiss: _onSwipeTask,
         background: Container(
           color: Colors.red,
           padding: EdgeInsets.symmetric(horizontal: 16),
@@ -61,10 +62,7 @@ class _TaskWidgetState extends State<TaskWidget> {
                   children: [
                     IconButton(
                         color: Theme.of(context).accentColor,
-                        onPressed: () {
-                          ScaffoldMessenger.of(context)
-                              .showSnackBar(SnackBar(content: Text('Edit!!')));
-                        },
+                        onPressed: _onEditButton,
                         icon: Icon(Icons.edit_outlined)),
                     Checkbox(
                         fillColor: MaterialStateProperty.resolveWith(
@@ -101,6 +99,29 @@ class _TaskWidgetState extends State<TaskWidget> {
     widget.toggleCompleteTask(widget.task.id);
   }
 
+  void _onEditButton() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return DialogEditWidget(task: widget.task, editTask: widget.editTask);
+        });
+  }
+
+  void _onDismissTask(DismissDirection? direction) {
+    widget.removeTask(widget.task.id);
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text("Task ${widget.task.title} was removed!"),
+      duration: Duration(seconds: 5),
+      action: SnackBarAction(
+        label: 'Undo',
+        onPressed: () {
+          final copiedTask = Task.copyTask(widget.task);
+          widget.undoRemoveTask(widget.index, copiedTask);
+        },
+      ),
+    ));
+  }
+
   Future<bool> _onSwipeTask(DismissDirection? direction) async {
     return await showDialog(
             context: context,
@@ -113,11 +134,11 @@ class _TaskWidgetState extends State<TaskWidget> {
                         Navigator.of(context).pop(false);
                       },
                       child: Text('Cancel')),
-                  ElevatedButton(
+                  TextButton(
                       onPressed: () {
                         Navigator.of(context).pop(true);
                       },
-                      child: Text('Ok'))
+                      child: Text('OK'))
                 ],
               );
             }) ??

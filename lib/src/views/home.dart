@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:todo_app/src/models/task.dart';
-import 'package:todo_app/src/widgets/dialog_add_task_widget.dart';
-import 'package:todo_app/src/widgets/task_widget.dart';
+import 'package:todo_app/src/widgets/task/dialog_add_task_widget.dart';
+import 'package:todo_app/src/widgets/task/task_widget.dart';
 import 'package:todo_app/src/__mocks__/tasks_mock.dart';
 
 class Home extends StatefulWidget {
@@ -24,12 +24,19 @@ class _HomeState extends State<Home> {
       body: ListView(
         children: _tasks.isNotEmpty
             ? _tasks
-                .map((task) => TaskWidget(
+                .asMap()
+                .map((index, task) => MapEntry(
+                    index,
+                    TaskWidget(
                       key: Key(task.id.toString()),
+                      index: index,
                       task: task,
-                      toggleCompleteTask: this._toggleCompleteTask,
-                      removeTask: this._removeTask,
-                    ))
+                      toggleCompleteTask: _toggleCompleteTask,
+                      removeTask: _removeTask,
+                      undoRemoveTask: _undoRemoveTask,
+                      editTask: _editTask,
+                    )))
+                .values
                 .toList()
             : <Widget>[],
       ),
@@ -84,6 +91,23 @@ class _HomeState extends State<Home> {
   void _removeTask(int taskId) {
     setState(() {
       this._tasks = this._tasks.where((task) => task.id != taskId).toList();
+    });
+  }
+
+  void _undoRemoveTask(int index, Task task) {
+    setState(() {
+      this._tasks.insert(index, task);
+    });
+  }
+
+  void _editTask(Task task) {
+    setState(() {
+      this._tasks = this._tasks.map((item) {
+        if (item.id == task.id) {
+          return task;
+        }
+        return item;
+      }).toList();
     });
   }
 }
